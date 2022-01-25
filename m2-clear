@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm -rfv ~/.m2/repository/org/kie
+rm -rfv ~/.m2/repository/org/drools*

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo "Stopping containers..."
+
+podman stop -a
+
+echo "Removing containers..."
+
+podman rm -a
+
+echo "Done!"
+
+podman ps -a

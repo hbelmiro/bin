@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo "Checking out main..."
+
+git checkout main
+
+echo "Pulling upstream..."
+git pull upstream main
+
+echo "Pushing changes..."
+git push origin main
+
+echo "Done!"
