@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$(dirname "$0")"
+source "$SCRIPT_DIR"/handle_error
+
+IMAGE=$(h-docker-build-dev dspo) || handle_error "Failed to build container image"
+docker push "$IMAGE" || handle_error "Failed to push container image"
+make all deploy IMG="$IMAGE"
