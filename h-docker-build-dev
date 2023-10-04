@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+PATH=".:$PATH"
+
+IMAGE_NAME=$1
+TIMESTAMP=$(date +%s)
+CURRENT_BRANCH=$(git branch --show-current)
+docker build -t quay.io/hbelmiro/"${IMAGE_NAME}":dev-"${CURRENT_BRANCH}"-"${TIMESTAMP}" .
