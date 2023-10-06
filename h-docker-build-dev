@@ -13,4 +13,5 @@ if docker build -t "${FULL_IMAGE_NAME}" . > /dev/null; then
   echo "${FULL_IMAGE_NAME}"
 else
   echo "Container build failed."
+  exit 1
 fi

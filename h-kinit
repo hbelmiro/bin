@@ -7,10 +7,29 @@
 # * Add a note named "KINIT_USERNAME" to Bitwarden containing the username you use to run kinit. Ex.: kinit my_user@my_domain.com
 # * Add a note named "KERBEROS_CREDENTIALS_NAME" to Bitwarden containing the name of the credentials where you store the kerberos password inside bitwarden
 
-SCRIPT_DIR="$(dirname "$0")"
-source "$SCRIPT_DIR"/handle_error
+# Parameters:
+# $1 - Bitwarden session key - Optional
 
-SESSION_KEY=$(bw unlock --raw) || handle_error "Failed to obtain Bitwarden session key"
+handle_error() {
+  lock_session
+  local error_message="$1"
+  echo "Error: $error_message"
+  exit 1
+}
+
+lock_session() {
+  if $LOCK_SESSION; then
+    bw lock --session "$SESSION_KEY"
+  fi
+}
+
+if [ -n "$1" ]; then
+  SESSION_KEY=$1
+  LOCK_SESSION=false
+else
+  SESSION_KEY=$(bw unlock --raw) || handle_error "Failed to obtain Bitwarden session key"
+  LOCK_SESSION=true
+fi
 
 KINIT_USERNAME=$(bw get notes "KINIT_USERNAME" --session "${SESSION_KEY}") || handle_error "Failed to obtain Kerberos username"
 KERBEROS_CREDENTIALS_NAME=$(bw get notes "KERBEROS_CREDENTIALS_NAME" --session "${SESSION_KEY}") || handle_error "Failed to obtain Kerberos credentials name"
@@ -19,4 +38,4 @@ kinit "${KINIT_USERNAME}" <<<"${PASSWORD}" || handle_error "Kerberos authenticat
 
 echo "Kerberos authentication successful for user: $KINIT_USERNAME"
 
-bw lock --session "$SESSION_KEY"
+lock_session
