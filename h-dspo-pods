@@ -3,6 +3,8 @@
 # Start a new tmux session
 tmux new-session -d
 
+tmux set status off
+
 # Split the first pane horizontally into two
 tmux split-window -h
 
