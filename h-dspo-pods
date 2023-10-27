@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Start a new tmux session
+tmux new-session -d
+
+# Split the first pane horizontally into two
+tmux split-window -h
+
+tmux select-pane -t 0
+tmux select-pane -T "operator"
+tmux send-keys "watch --interval 1 \"oc get pods -n ${DSPO_NS}\" && exit" C-m
+
+tmux select-pane -t 1
+tmux select-pane -T "app"
+tmux send-keys "watch --interval 1 \"oc get pods -n ${DSP_NS}\" && exit" C-m
+
+# Attach to the session
+tmux attach-session
