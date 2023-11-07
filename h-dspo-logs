@@ -1,3 +1,21 @@
 #!/usr/bin/env bash
 
-oc logs deployment/data-science-pipelines-operator-controller-manager -n ${DSPO_NS}
+while getopts ":f" opt; do
+  case $opt in
+    f)
+      use_follow_flag=true
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$use_follow_flag" ]; then
+  oc logs deployment/data-science-pipelines-operator-controller-manager -n ${DSPO_NS} -f
+else
+  oc logs deployment/data-science-pipelines-operator-controller-manager -n ${DSPO_NS}
+fi
