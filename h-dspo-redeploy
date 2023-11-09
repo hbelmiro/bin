@@ -4,25 +4,39 @@ SCRIPT_DIR="$(dirname "$0")"
 source "$SCRIPT_DIR"/handle_error
 
 USE_DOCKER=false
+IGNORE_IMAGE=false
 
-while getopts "d" opt; do
-  case $opt in
-    d)
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    --docker)
       USE_DOCKER=true
       ;;
-    \?)
-      echo "Invalid option: -$OPTARG" >&2
+    --ignore-image)
+      IGNORE_IMAGE=true
+      ;;
+    *)
+      echo "Unknown option: $1"
       exit 1
       ;;
   esac
+  shift
 done
 
 IMAGE=""
-if [ "$USE_DOCKER" = true ]; then
-  IMAGE=$(h-docker-build-dev -d dspo) || handle_error "Failed to build Docker container image"
-else
-  IMAGE=$(h-docker-build-dev dspo) || handle_error "Failed to build Quay container image"
+if [ "$IGNORE_IMAGE" = false ]; then
+  if [ "$USE_DOCKER" = true ]; then
+    IMAGE=$(h-docker-build-dev -d dspo) || handle_error "Failed to build Docker container image"
+  else
+    IMAGE=$(h-docker-build-dev dspo) || handle_error "Failed to build Quay container image"
+  fi
 fi
 
-docker push "$IMAGE" || handle_error "Failed to push container image"
-make all deploy IMG="$IMAGE"
+if [ "$IGNORE_IMAGE" = false ]; then
+  docker push "$IMAGE" || handle_error "Failed to push container image"
+fi
+
+if [ "$IGNORE_IMAGE" = true ]; then
+  make all deploy
+else
+  make all deploy IMG="$IMAGE"
+fi
