@@ -2,16 +2,44 @@
 
 PATH=".:$PATH"
 
-IMAGE_NAME=$1
+IMAGE_NAME=""
+USE_DOCKER=false
+
+while getopts "d" opt; do
+  case $opt in
+    d)
+      USE_DOCKER=true
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ "$USE_DOCKER" = true ]; then
+  IMAGE_NAME=$2
+else
+  IMAGE_NAME=$1
+fi
 
 TIMESTAMP=$(date +%s)
 CURRENT_BRANCH=$(git branch --show-current)
 
-FULL_IMAGE_NAME=quay.io/hbelmiro/"${IMAGE_NAME}":dev-"${CURRENT_BRANCH}"-"${TIMESTAMP}"
-
-if docker build -t "${FULL_IMAGE_NAME}" . > /dev/null; then
-  echo "${FULL_IMAGE_NAME}"
+if [ "$USE_DOCKER" = true ]; then
+  FULL_IMAGE_NAME="docker.io/hbelmiro/${IMAGE_NAME}:dev-${CURRENT_BRANCH}-${TIMESTAMP}"
+  if docker build -t "${FULL_IMAGE_NAME}" . > /dev/null; then
+    echo "${FULL_IMAGE_NAME}"
+  else
+    echo "Docker build failed."
+    exit 1
+  fi
 else
-  echo "Container build failed."
-  exit 1
+  FULL_IMAGE_NAME=quay.io/hbelmiro/"${IMAGE_NAME}":dev-"${CURRENT_BRANCH}"-"${TIMESTAMP}"
+  if docker build -t "${FULL_IMAGE_NAME}" . > /dev/null; then
+    echo "${FULL_IMAGE_NAME}"
+  else
+    echo "Quay container build failed."
+    exit 1
+  fi
 fi
