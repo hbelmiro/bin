@@ -1,20 +1,53 @@
 #!/usr/bin/env bash
 
-# Start a new tmux session
-tmux new-session -d
+DEFAULT_INTERVAL=5
 
-tmux set status off
+while getopts ":i:" opt; do
+  case ${opt} in
+    i)
+      DEFAULT_INTERVAL=${OPTARG}
+      ;;
+    \?)
+      echo "Invalid option: -${OPTARG}" >&2
+      ;;
+  esac
+done
 
-# Split the first pane horizontally into two
-tmux split-window -h
+usage() {
+  echo "Usage: $0 [-i <interval>]"
+  echo "Options:"
+  echo "  -i <interval>  Specify the interval in seconds (default: 5)"
+  exit 1
+}
 
-tmux select-pane -t 0
-tmux select-pane -T "operator"
-tmux send-keys "watch --interval 5 \"oc get pods -n ${DSPO_NS}\" && exit" C-m
+if ! [[ "$DEFAULT_INTERVAL" =~ ^[0-9]+$ ]]; then
+  echo "Error: Interval must be a positive integer" >&2
+  usage
+fi
 
-tmux select-pane -t 1
-tmux select-pane -T "app"
-tmux send-keys "watch --interval 5 \"oc get pods -n ${DSP_NS}\" && exit" C-m
+start_tmux_session() {
+  tmux new-session -d
+  tmux set status off
 
-# Attach to the session
-tmux attach-session
+  tmux split-window -h
+
+  tmux select-pane -t 0
+  tmux select-pane -T "operator"
+  tmux send-keys "watch --interval ${DEFAULT_INTERVAL} \"oc get pods -n ${DSPO_NS}\" && exit" C-m
+
+  tmux select-pane -t 1
+  tmux select-pane -T "app"
+  tmux send-keys "watch --interval ${DEFAULT_INTERVAL} \"oc get pods -n ${DSP_NS}\" && exit" C-m
+
+  tmux attach-session
+}
+
+if [ $# -eq 0 ]; then
+  usage
+fi
+
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  usage
+fi
+
+start_tmux_session
