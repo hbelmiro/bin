@@ -33,11 +33,11 @@ start_tmux_session() {
 
   tmux select-pane -t 0
   tmux select-pane -T "operator"
-  tmux send-keys "watch --interval ${DEFAULT_INTERVAL} \"oc get pods -n ${DSPO_NS}\" && exit" C-m
+  tmux send-keys "watch --interval ${DEFAULT_INTERVAL} \"oc get pods --field-selector=status.phase!=Succeeded -n ${DSPO_NS}\" && exit" C-m
 
   tmux select-pane -t 1
   tmux select-pane -T "app"
-  tmux send-keys "watch --interval ${DEFAULT_INTERVAL} \"oc get pods -n ${DSP_NS}\" && exit" C-m
+  tmux send-keys "watch --interval ${DEFAULT_INTERVAL} \"oc get pods --field-selector=status.phase!=Succeeded -n ${DSP_NS}\" && exit" C-m
 
   tmux attach-session
 }
