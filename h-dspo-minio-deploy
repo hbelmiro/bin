@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+CURRENT_PROJECT=$(oc project -q)
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+oc new-project minio
+
+oc create -f $SCRIPT_DIR/resources/dspo/minio/minio.yaml
+
+oc project ${CURRENT_PROJECT}
