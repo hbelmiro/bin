@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -e
+
+check_variables_are_set() {
+    if [ -z "$DEV_SETUP_REPO" ]; then
+        echo "Error: DEV_SETUP_REPO variable is not set. Please set it to the path where the https://github.com/HumairAK/dsp-dev-setup repository is."
+        exit 1
+    fi
+
+    if [ -z "${DSP_NS}" ]; then
+        echo "Error: DSP_NS variable is not set. Please set it to the namespace where the Data Science Pipelines application is deployed."
+        exit 1
+    fi
+}
+
+main() {
+    check_variables_are_set
+
+    pushd "$DEV_SETUP_REPO"
+
+    ./main.sh ${DSP_NS} sample /home/${USER}/.kube/config output
+
+    ./post-config-run.sh output kubeflow
+
+    popd
+}
+
+main
