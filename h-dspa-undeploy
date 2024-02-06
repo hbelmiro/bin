@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-kustomize build config/samples | oc -n ${DSP_NS} delete --ignore-not-found -f -
+kustomize build config/samples/v2/dspa-simple | oc -n kubeflow delete --ignore-not-found -f -
+oc delete pods --field-selector=status.phase=Succeeded
