@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-kustomize build config/samples/v2/dspa-simple | oc -n kubeflow create -f -
+DSPA="${1:-config/samples/v2/dspa-simple}"
+
+kustomize build "$DSPA" | oc -n kubeflow create -f -
