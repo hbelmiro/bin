@@ -3,4 +3,5 @@
 DSPA="${1:-config/samples/v2/dspa-simple}"
 
 kustomize build "$DSPA" | oc -n kubeflow delete --ignore-not-found -f -
-oc delete pods --field-selector=status.phase=Succeeded
+oc delete pods --field-selector=status.phase=Succeeded,status.phase=Failed
+oc delete pods --field-selector=status.phase=Failed
