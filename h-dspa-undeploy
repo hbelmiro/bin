@@ -2,5 +2,5 @@
 
 DSPA="${1:-config/samples/v2/dspa-simple}"
 
-kustomize build "$DSPA" | oc -n kubeflow delete --ignore-not-found -f -
+kustomize build "$DSPA" | oc -n "${DSP_NS}" delete --ignore-not-found -f -
 oc delete pods --all

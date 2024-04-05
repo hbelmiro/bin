@@ -2,4 +2,4 @@
 
 DSPA="${1:-config/samples/v2/dspa-simple}"
 
-kustomize build "$DSPA" | oc -n kubeflow create -f -
+kustomize build "$DSPA" | oc -n "${DSP_NS}" create -f -
