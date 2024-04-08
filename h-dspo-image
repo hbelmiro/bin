@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR="$(dirname "$0")"
+source "$SCRIPT_DIR"/handle_error
+
+USE_DOCKER=false
+
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    --docker)
+      USE_DOCKER=true
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+IMAGE=""
+if [ "$USE_DOCKER" = true ]; then
+  IMAGE=$(h-docker-build-dev -d dspo) || handle_error "Failed to build Docker container image"
+else
+  IMAGE=$(h-docker-build-dev dspo) || handle_error "Failed to build Quay container image"
+fi
+
+docker push "$IMAGE" || handle_error "Failed to push container image"
+echo "$IMAGE"

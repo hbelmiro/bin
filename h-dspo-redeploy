@@ -22,21 +22,14 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-IMAGE=""
-if [ "$IGNORE_IMAGE" = false ]; then
-  if [ "$USE_DOCKER" = true ]; then
-    IMAGE=$(h-docker-build-dev -d dspo) || handle_error "Failed to build Docker container image"
-  else
-    IMAGE=$(h-docker-build-dev dspo) || handle_error "Failed to build Quay container image"
-  fi
-fi
-
-if [ "$IGNORE_IMAGE" = false ]; then
-  docker push "$IMAGE" || handle_error "Failed to push container image"
-fi
-
 if [ "$IGNORE_IMAGE" = true ]; then
   make all deploy
 else
+  if [ "$USE_DOCKER" = true ]; then
+    IMAGE=$(h-dspo-image --docker) || handle_error "Failed to build Docker container image"
+  else
+    IMAGE=$(h-dspo-image) || handle_error "Failed to build Quay container image"
+  fi
+
   make all deploy IMG="$IMAGE"
 fi
