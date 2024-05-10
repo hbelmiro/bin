@@ -8,6 +8,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 oc new-project minio
 
-oc create -f $SCRIPT_DIR/resources/dspo/minio/minio.yaml
+oc create -f "$SCRIPT_DIR"/resources/dspo/minio/minio.yaml
 
-oc project ${CURRENT_PROJECT}
+oc project "${CURRENT_PROJECT}"
+
+ENDPOINT=$(h-dspo-minio-endpoint)
+
+echo "minio endpoint: ${ENDPOINT}"

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+MINIO_NS=minio
+HOST=$(oc get service/minio-service -n ${MINIO_NS} -o json | jq -r .spec.clusterIP)
+PORT=$(oc get service/minio-service -n ${MINIO_NS} -o json | jq -r '.spec.ports[] | select(.name == "api") | .port')
+
+echo "http://${HOST}:${PORT}"
