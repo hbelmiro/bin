@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e
+
+kubectl apply -k "manifests/kustomize/cluster-scoped-resources"
+kubectl apply -k "manifests/kustomize/env/platform-agnostic"
