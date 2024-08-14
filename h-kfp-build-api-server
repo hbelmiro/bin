@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -e
+
+TIMESTAMP=$(date +%s)
+CURRENT_BRANCH=$(git branch --show-current)
+
+FULL_IMAGE_NAME=quay.io/hbelmiro/dsp-api-server:dev-"${CURRENT_BRANCH}"-"${TIMESTAMP}"
+if podman build -t "${FULL_IMAGE_NAME}" -f ./backend/Dockerfile . ; then
+  echo "${FULL_IMAGE_NAME}"
+else
+  echo "Image build failed."
+  exit 1
+fi
