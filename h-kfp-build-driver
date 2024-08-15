@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -e
+
+h-kfp-build-image -i quay.io/hbelmiro/dsp-driver -f ./backend/Dockerfile.driver

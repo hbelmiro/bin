@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+set -e
+
+usage() {
+  echo "Usage: $0 -i <image_base_name> -f <containerfile_path>"
+  exit 1
+}
+
+while getopts ":i:f:" opt; do
+  case ${opt} in
+    i )
+      IMAGE_BASE_NAME=$OPTARG
+      ;;
+    f )
+      CONTAINERFILE_PATH=$OPTARG
+      ;;
+    \? )
+      usage
+      ;;
+  esac
+done
+
+if [ -z "$IMAGE_BASE_NAME" ] || [ -z "$CONTAINERFILE_PATH" ]; then
+  usage
+fi
+
+TIMESTAMP=$(date +%s)
+CURRENT_BRANCH=$(git branch --show-current)
+
+FULL_IMAGE_NAME="${IMAGE_BASE_NAME}:dev-${CURRENT_BRANCH}-${TIMESTAMP}"
+if podman build -t "${FULL_IMAGE_NAME}" -f "${CONTAINERFILE_PATH}" . ; then
+  echo "${FULL_IMAGE_NAME}"
+else
+  echo "Image build failed."
+  exit 1
+fi
