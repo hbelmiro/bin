@@ -21,5 +21,4 @@ while getopts ":p" opt; do
   esac
 done
 
-h-kfp-build-image -i quay.io/hbelmiro/dsp-api-server -f ./backend/Dockerfile ${PUSH_OPTION}
-
+h-kfp-build-image -i quay.io/hbelmiro/dsp-launcher -f ./backend/Dockerfile.launcher ${PUSH_OPTION}

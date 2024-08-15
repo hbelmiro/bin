@@ -3,17 +3,22 @@
 set -e
 
 usage() {
-  echo "Usage: $0 -i <image_base_name> -f <containerfile_path>"
+  echo "Usage: $0 -i <image_base_name> -f <containerfile_path> [-p]"
   exit 1
 }
 
-while getopts ":i:f:" opt; do
+PUSH_IMAGE=false
+
+while getopts ":i:f:p" opt; do
   case ${opt} in
     i )
       IMAGE_BASE_NAME=$OPTARG
       ;;
     f )
       CONTAINERFILE_PATH=$OPTARG
+      ;;
+    p )
+      PUSH_IMAGE=true
       ;;
     \? )
       usage
@@ -31,6 +36,9 @@ CURRENT_BRANCH=$(git branch --show-current)
 FULL_IMAGE_NAME="${IMAGE_BASE_NAME}:dev-${CURRENT_BRANCH}-${TIMESTAMP}"
 if podman build -t "${FULL_IMAGE_NAME}" -f "${CONTAINERFILE_PATH}" . ; then
   echo "${FULL_IMAGE_NAME}"
+  if [ "$PUSH_IMAGE" = true ]; then
+    podman push "${FULL_IMAGE_NAME}"
+  fi
 else
   echo "Image build failed."
   exit 1

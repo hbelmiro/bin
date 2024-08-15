@@ -2,4 +2,23 @@
 
 set -e
 
-h-kfp-build-image -i quay.io/hbelmiro/dsp-driver -f ./backend/Dockerfile.driver
+usage() {
+  echo "Usage: $0 [-p]"
+  echo "  -p  Push the image after building"
+  exit 1
+}
+
+PUSH_OPTION=""
+
+while getopts ":p" opt; do
+  case ${opt} in
+    p )
+      PUSH_OPTION="-p"
+      ;;
+    \? )
+      usage
+      ;;
+  esac
+done
+
+h-kfp-build-image -i quay.io/hbelmiro/dsp-driver -f ./backend/Dockerfile.driver ${PUSH_OPTION}
