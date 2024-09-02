@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+kubectl delete -k "manifests/kustomize/cluster-scoped-resources"
+kubectl delete -k "manifests/kustomize/env/platform-agnostic"
+kubectl delete pods --all
