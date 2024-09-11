@@ -20,10 +20,10 @@ done
 
 IMAGE=""
 if [ "$USE_DOCKER" = true ]; then
-  IMAGE=$(h-docker-build-dev -d dspo) || handle_error "Failed to build Docker container image"
+  IMAGE=$(h-podman-build-dev -d dspo) || handle_error "Failed to build Docker container image"
 else
-  IMAGE=$(h-docker-build-dev dspo) || handle_error "Failed to build Quay container image"
+  IMAGE=$(h-podman-build-dev dspo) || handle_error "Failed to build Quay container image"
 fi
 
-docker push "$IMAGE" || handle_error "Failed to push container image"
+podman push "$IMAGE" || handle_error "Failed to push container image"
 echo "$IMAGE"

@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Docker
-alias h-docker-clear-images='docker rmi -f $(docker images -aq)'
-alias h-docker-clear-all='docker system prune -a'
+alias h-podman-clear-images='podman rmi -f $(podman images -aq)'
+alias h-podman-clear-all='podman system prune -a'

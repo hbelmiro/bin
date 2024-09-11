@@ -1,6 +1,0 @@
-#!/usr/bin/env zsh
-
-CONTAINER_ID=$1
-
-docker container stop "${CONTAINER_ID}"
-docker container rm "${CONTAINER_ID}"

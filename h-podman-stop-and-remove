@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+CONTAINER_ID=$1
+
+podman container stop "${CONTAINER_ID}"
+podman container rm "${CONTAINER_ID}"

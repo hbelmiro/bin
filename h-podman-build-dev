@@ -28,7 +28,7 @@ CURRENT_BRANCH=$(git branch --show-current)
 
 if [ "$USE_DOCKER" = true ]; then
   FULL_IMAGE_NAME="docker.io/hbelmiro/${IMAGE_NAME}:dev-${CURRENT_BRANCH}-${TIMESTAMP}"
-  if docker build -t "${FULL_IMAGE_NAME}" . > /dev/null; then
+  if podman build -t "${FULL_IMAGE_NAME}" . > /dev/null; then
     echo "${FULL_IMAGE_NAME}"
   else
     echo "Docker build failed."
@@ -36,7 +36,7 @@ if [ "$USE_DOCKER" = true ]; then
   fi
 else
   FULL_IMAGE_NAME=quay.io/hbelmiro/"${IMAGE_NAME}":dev-"${CURRENT_BRANCH}"-"${TIMESTAMP}"
-  if docker build -t "${FULL_IMAGE_NAME}" . > /dev/null; then
+  if podman build -t "${FULL_IMAGE_NAME}" . > /dev/null; then
     echo "${FULL_IMAGE_NAME}"
   else
     echo "Quay container build failed."
