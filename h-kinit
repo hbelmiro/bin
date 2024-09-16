@@ -39,11 +39,3 @@ kinit "${KINIT_USERNAME}" <<<"${PASSWORD}" || handle_error "Kerberos authenticat
 echo "Kerberos authentication successful for user: $KINIT_USERNAME"
 
 lock_session
-
-
-
-
-
-
-
-
