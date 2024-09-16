@@ -34,7 +34,7 @@ TIMESTAMP=$(date +%s)
 CURRENT_BRANCH=$(git branch --show-current)
 
 FULL_IMAGE_NAME="${IMAGE_BASE_NAME}:dev-${CURRENT_BRANCH}-${TIMESTAMP}"
-if podman build -t "${FULL_IMAGE_NAME}" -f "${CONTAINERFILE_PATH}" . ; then
+if podman build --platform linux/amd64 -t "${FULL_IMAGE_NAME}" -f "${CONTAINERFILE_PATH}" . ; then
   echo "${FULL_IMAGE_NAME}"
   if [ "$PUSH_IMAGE" = true ]; then
     podman push "${FULL_IMAGE_NAME}"
