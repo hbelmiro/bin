@@ -2,6 +2,6 @@
 
 set -e
 
-kubectl delete -k "manifests/kustomize/cluster-scoped-resources"
-kubectl delete -k "manifests/kustomize/env/platform-agnostic"
+kubectl delete -k "manifests/kustomize/cluster-scoped-resources" --ignore-not-found
+kubectl delete -k "manifests/kustomize/env/platform-agnostic" --ignore-not-found
 kubectl delete pods --all
