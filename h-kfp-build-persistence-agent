@@ -1,0 +1,24 @@
+#!/usr/bin/env zsh
+
+set -e
+
+usage() {
+  echo "Usage: $0 [-p]"
+  echo "  -p  Push the image after building"
+  exit 1
+}
+
+PUSH_OPTION=""
+
+while getopts ":p" opt; do
+  case ${opt} in
+    p )
+      PUSH_OPTION="-p"
+      ;;
+    \? )
+      usage
+      ;;
+  esac
+done
+
+h-kfp-build-image -i quay.io/hbelmiro/dsp-persistence-agent -f ./backend/Dockerfile.persistenceagent ${PUSH_OPTION}
