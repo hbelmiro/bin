@@ -31,5 +31,5 @@ else
     IMAGE=$(h-dspo-image) || handle_error "Failed to build Quay container image"
   fi
 
-  make all deploy IMG="$IMAGE"
+  make all deploy IMG="$IMAGE" OPERATOR_NS="$DSPO_NS"
 fi
