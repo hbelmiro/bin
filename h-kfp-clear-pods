@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+set -e
+
+kubectl get pods -A --no-headers | awk '$4 ~ /Completed|Error|Failed/ {print "kubectl delete pod -n", $1, $2}' | sh
