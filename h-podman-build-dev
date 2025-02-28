@@ -27,7 +27,7 @@ TIMESTAMP=$(date +%s)
 CURRENT_BRANCH=$(git branch --show-current)
 
 if [ "$USE_DOCKER" = true ]; then
-  FULL_IMAGE_NAME="docker.io/hbelmiro/${IMAGE_NAME}:dev-${CURRENT_BRANCH}-${TIMESTAMP}"
+  FULL_IMAGE_NAME="docker.io/hbelmiro/${IMAGE_NAME}:dev-${CURRENT_BRANCH//\//_}-${TIMESTAMP}"
   if podman build --build-arg TARGETOS=linux --build-arg TARGETARCH=amd64 -t "${FULL_IMAGE_NAME}" . > /dev/null; then
     echo "${FULL_IMAGE_NAME}"
   else
@@ -35,7 +35,7 @@ if [ "$USE_DOCKER" = true ]; then
     exit 1
   fi
 else
-  FULL_IMAGE_NAME=quay.io/hbelmiro/"${IMAGE_NAME}":dev-"${CURRENT_BRANCH}"-"${TIMESTAMP}"
+  FULL_IMAGE_NAME=quay.io/hbelmiro/"${IMAGE_NAME}":dev-"${CURRENT_BRANCH//\//_}"-"${TIMESTAMP}"
   if podman build --build-arg TARGETOS=linux --build-arg TARGETARCH=amd64 -t "${FULL_IMAGE_NAME}" . > /dev/null; then
     echo "${FULL_IMAGE_NAME}"
   else
