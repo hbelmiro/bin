@@ -3,23 +3,33 @@
 set -e
 
 usage() {
-  echo "Usage: $0 [-p]"
-  echo "  -p  Push the image after building"
+  echo "Usage: $0 --platform <platform> [-p]"
+  echo "  --platform  Set the target platform (mandatory)"
+  echo "  -p         Push the image after building"
   exit 1
 }
 
 PUSH_OPTION=""
+PLATFORM=""
 
-while getopts ":p" opt; do
-  case ${opt} in
-    p )
-      PUSH_OPTION="-p"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --platform)
+      PLATFORM="$2"
+      shift 2
       ;;
-    \? )
+    -p)
+      PUSH_OPTION="-p"
+      shift
+      ;;
+    *)
       usage
       ;;
   esac
 done
 
-h-kfp-build-image -i quay.io/hbelmiro/dsp-api-server -f ./backend/Dockerfile ${PUSH_OPTION}
+if [ -z "$PLATFORM" ]; then
+  usage
+fi
 
+h-kfp-build-image --image quay.io/hbelmiro/dsp-api-server --container-file ./backend/Dockerfile --platform "$PLATFORM" ${PUSH_OPTION}

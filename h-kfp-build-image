@@ -3,30 +3,38 @@
 set -e
 
 usage() {
-  echo "Usage: $0 -i <image_base_name> -f <containerfile_path> [-p]"
+  echo "Usage: $0 --image <image_base_name> --container-file <containerfile_path> --platform <platform> [-p]"
   exit 1
 }
 
 PUSH_IMAGE=false
+PLATFORM=""
 
-while getopts ":i:f:p" opt; do
-  case ${opt} in
-    i )
-      IMAGE_BASE_NAME=$OPTARG
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --image)
+      IMAGE_BASE_NAME="$2"
+      shift 2
       ;;
-    f )
-      CONTAINERFILE_PATH=$OPTARG
+    --container-file)
+      CONTAINERFILE_PATH="$2"
+      shift 2
       ;;
-    p )
+    --platform)
+      PLATFORM="$2"
+      shift 2
+      ;;
+    -p)
       PUSH_IMAGE=true
+      shift
       ;;
-    \? )
+    *)
       usage
       ;;
   esac
 done
 
-if [ -z "$IMAGE_BASE_NAME" ] || [ -z "$CONTAINERFILE_PATH" ]; then
+if [ -z "$IMAGE_BASE_NAME" ] || [ -z "$CONTAINERFILE_PATH" ] || [ -z "$PLATFORM" ]; then
   usage
 fi
 
@@ -37,8 +45,9 @@ FULL_IMAGE_NAME="${IMAGE_BASE_NAME}:dev-${CURRENT_BRANCH//\//_}-${TIMESTAMP}"
 
 echo "${FULL_IMAGE_NAME}"
 
-if podman build --platform linux/amd64 -t "${FULL_IMAGE_NAME}" -f "${CONTAINERFILE_PATH}" . ; then
-#if podman build -t "${FULL_IMAGE_NAME}" -f "${CONTAINERFILE_PATH}" . ; then
+BUILD_CMD="podman build --platform=$PLATFORM -t \"${FULL_IMAGE_NAME}\" -f \"${CONTAINERFILE_PATH}\""
+
+if eval "$BUILD_CMD" . ; then
   if [ "$PUSH_IMAGE" = true ]; then
     podman push "${FULL_IMAGE_NAME}"
   fi
