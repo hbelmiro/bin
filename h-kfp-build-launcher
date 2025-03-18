@@ -3,19 +3,30 @@
 set -e
 
 usage() {
-  echo "Usage: $0 --platform <platform> [-p]"
+  echo "Usage: $0 --platform <platform> --debug <true|false> --kfp-distribution <kfp|odh> [-p]"
   echo "  --platform  Set the target platform (mandatory)"
+  echo "  --debug     Set if the image should be in debug mode (mandatory)"
+  echo "  --kfp-distribution  Set the KFP distribution. Can be 'kfp' or 'odh' (mandatory)"
   echo "  -p         Push the image after building"
   exit 1
 }
 
 PUSH_OPTION=""
 PLATFORM=""
+DEBUG=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --platform)
       PLATFORM="$2"
+      shift 2
+      ;;
+    --debug)
+      DEBUG="$2"
+      shift 2
+      ;;
+    --kfp-distribution)
+      KFP_DISTRIBUTION="$2"
       shift 2
       ;;
     -p)
@@ -32,4 +43,4 @@ if [ -z "$PLATFORM" ]; then
   usage
 fi
 
-h-kfp-build-image --image quay.io/hbelmiro/dsp-launcher --container-file ./backend/Dockerfile.launcher --platform "$PLATFORM" ${PUSH_OPTION}
+h-kfp-build-image --image quay.io/hbelmiro/dsp-launcher --container-file ./backend/Dockerfile.launcher --debug "${DEBUG}" --kfp-distribution "${KFP_DISTRIBUTION}" --platform "$PLATFORM" ${PUSH_OPTION}

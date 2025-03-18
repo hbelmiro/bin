@@ -9,6 +9,7 @@ usage() {
 
 PUSH_IMAGE=false
 PLATFORM=""
+DEBUG=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -22,6 +23,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --platform)
       PLATFORM="$2"
+      shift 2
+      ;;
+    --debug)
+      DEBUG="$2"
+      shift 2
+      ;;
+    --kfp-distribution)
+      KFP_DISTRIBUTION="$2"
       shift 2
       ;;
     -p)
@@ -44,6 +53,10 @@ CURRENT_BRANCH=$(git branch --show-current)
 FULL_IMAGE_NAME="${IMAGE_BASE_NAME}:dev-${CURRENT_BRANCH//\//_}-${TIMESTAMP}"
 
 echo "${FULL_IMAGE_NAME}"
+
+if [ "$DEBUG" = true ]; then
+    CONTAINERFILE_PATH="${CONTAINERFILE_PATH}.debug.${KFP_DISTRIBUTION}"
+fi
 
 BUILD_CMD="podman build --platform=$PLATFORM -t \"${FULL_IMAGE_NAME}\" -f \"${CONTAINERFILE_PATH}\""
 
