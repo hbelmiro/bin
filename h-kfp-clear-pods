@@ -2,4 +2,4 @@
 
 set -e
 
-kubectl get pods -n "$DSP_NS" --no-headers | awk -v dsp_ns="$DSP_NS" '$3 ~ /Completed|Error|Failed/ {print "kubectl delete pod -n " dsp_ns " " $1}' | sh
+kubectl get pods -n "$DSP_NS" --no-headers | awk -v dsp_ns="$DSP_NS" '$3 ~ /Completed|Error|Failed|Init:OOMKilled/ {print "kubectl delete pod -n " dsp_ns " " $1}' | sh
