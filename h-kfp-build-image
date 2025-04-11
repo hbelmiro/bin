@@ -8,6 +8,8 @@ usage() {
 }
 
 PUSH_IMAGE=false
+PUSH_TO_KIND=false
+REMOVE_IMAGE=false
 PLATFORM=""
 DEBUG=false
 
@@ -33,8 +35,20 @@ while [[ $# -gt 0 ]]; do
       KFP_DISTRIBUTION="$2"
       shift 2
       ;;
-    -p)
+    --push)
       PUSH_IMAGE=true
+      shift
+      ;;
+    --push-to-kind)
+      PUSH_TO_KIND=true
+      shift
+      ;;
+    --cluster-name)
+      CLUSTER_NAME="$2"
+      shift 2
+      ;;
+    --remove-image)
+      REMOVE_IMAGE=true
       shift
       ;;
     *)
@@ -63,6 +77,13 @@ BUILD_CMD="podman build --platform=$PLATFORM -t \"${FULL_IMAGE_NAME}\" -f \"${CO
 if eval "$BUILD_CMD" . ; then
   if [ "$PUSH_IMAGE" = true ]; then
     podman push "${FULL_IMAGE_NAME}"
+  fi
+  if [ "$PUSH_TO_KIND" = true ]; then
+    if [ -z "$CLUSTER_NAME" ]; then
+      echo "--cluster-name is required when --push-to-kind is set"
+      exit 1
+    fi
+    kubepush --cluster-name "${CLUSTER_NAME}" --image "${FULL_IMAGE_NAME}" --remove-image "${REMOVE_IMAGE}"
   fi
 else
   echo "Image build failed."
