@@ -83,9 +83,14 @@ if eval "$BUILD_CMD" . ; then
       echo "--cluster-name is required when --push-to-kind is set"
       exit 1
     fi
-    kubepush --cluster-name "${CLUSTER_NAME}" --image "${FULL_IMAGE_NAME}" --remove-image "${REMOVE_IMAGE}"
+    kind load --name "${CLUSTER_NAME}" image-archive <(podman save "${FULL_IMAGE_NAME}")
   fi
 else
   echo "Image build failed."
   exit 1
+fi
+
+if [ "$REMOVE_IMAGE" = true ]; then
+    echo "Removing image..."
+    podman rmi "${FULL_IMAGE_NAME}"
 fi
