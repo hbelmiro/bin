@@ -25,5 +25,6 @@ else
   IMAGE=$(h-podman-build-dev dspo) || handle_error "Failed to build Quay container image"
 fi
 
-podman push "$IMAGE" || handle_error "Failed to push container image"
+# Push progress must not go to stdout — callers use $(h-dspo-image) and need only the image ref.
+podman push "$IMAGE" 1>&2 || handle_error "Failed to push container image"
 echo "$IMAGE"

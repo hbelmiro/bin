@@ -25,10 +25,11 @@ done
 if [ "$IGNORE_IMAGE" = true ]; then
   make all deploy
 else
+  # FIPS/CGO strictfipsruntime breaks local image builds (e.g. gcc -m64 in this env).
   if [ "$USE_DOCKER" = true ]; then
-    IMAGE=$(h-dspo-image --docker) || handle_error "Failed to build Docker container image"
+    IMAGE=$(FIPS_ENABLED=0 h-dspo-image --docker) || handle_error "Failed to build Docker container image"
   else
-    IMAGE=$(h-dspo-image) || handle_error "Failed to build Quay container image"
+    IMAGE=$(FIPS_ENABLED=0 h-dspo-image) || handle_error "Failed to build Quay container image"
   fi
 
   make all deploy IMG="$IMAGE" OPERATOR_NS="$DSPO_NS"
