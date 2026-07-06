@@ -5,31 +5,62 @@ source "$SCRIPT_DIR"/handle_error
 
 USE_DOCKER=false
 IGNORE_IMAGE=false
+# OpenShift is amd64; match by default. Use --no-platform for host-default (e.g. arm64 laptop).
+DSPO_IMAGE_PLATFORM=linux/amd64
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     --docker)
       USE_DOCKER=true
+      shift
       ;;
     --ignore-image)
       IGNORE_IMAGE=true
+      shift
+      ;;
+    --no-platform)
+      DSPO_IMAGE_PLATFORM=""
+      shift
+      ;;
+    --platform)
+      if [[ -z "${2:-}" ]]; then
+        echo "h-dspo-redeploy: --platform requires a value (e.g. linux/amd64)" >&2
+        exit 1
+      fi
+      DSPO_IMAGE_PLATFORM="$2"
+      shift 2
       ;;
     *)
       echo "Unknown option: $1"
       exit 1
       ;;
   esac
-  shift
 done
+
+HOST_ARCH="$(uname -m)"
+case "$HOST_ARCH" in
+  x86_64)        HOST_ARCH=amd64 ;;
+  aarch64|arm64) HOST_ARCH=arm64 ;;
+esac
+export BUILDER_ARCH="$HOST_ARCH"
 
 if [ "$IGNORE_IMAGE" = true ]; then
   make all deploy
 else
   # FIPS/CGO strictfipsruntime breaks local image builds (e.g. gcc -m64 in this env).
+  # Default image platform is linux/amd64; override with --platform or clear with --no-platform.
   if [ "$USE_DOCKER" = true ]; then
-    IMAGE=$(FIPS_ENABLED=0 h-dspo-image --docker) || handle_error "Failed to build Docker container image"
+    if [[ -n "$DSPO_IMAGE_PLATFORM" ]]; then
+      IMAGE=$(FIPS_ENABLED=0 h-dspo-image --platform "$DSPO_IMAGE_PLATFORM" --docker) || handle_error "Failed to build Docker container image"
+    else
+      IMAGE=$(FIPS_ENABLED=0 h-dspo-image --docker) || handle_error "Failed to build Docker container image"
+    fi
   else
-    IMAGE=$(FIPS_ENABLED=0 h-dspo-image) || handle_error "Failed to build Quay container image"
+    if [[ -n "$DSPO_IMAGE_PLATFORM" ]]; then
+      IMAGE=$(FIPS_ENABLED=0 h-dspo-image --platform "$DSPO_IMAGE_PLATFORM") || handle_error "Failed to build Quay container image"
+    else
+      IMAGE=$(FIPS_ENABLED=0 h-dspo-image) || handle_error "Failed to build Quay container image"
+    fi
   fi
 
   make all deploy IMG="$IMAGE" OPERATOR_NS="$DSPO_NS"

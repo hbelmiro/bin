@@ -4,25 +4,45 @@ SCRIPT_DIR="$(dirname "$0")"
 source "$SCRIPT_DIR"/handle_error
 
 USE_DOCKER=false
+DSPO_PLATFORM=""
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     --docker)
       USE_DOCKER=true
+      shift
+      ;;
+    --platform)
+      if [[ -z "${2:-}" ]]; then
+        echo "h-dspo-image: --platform requires a value (e.g. linux/amd64)" >&2
+        exit 1
+      fi
+      DSPO_PLATFORM="$2"
+      shift 2
       ;;
     *)
       echo "Unknown option: $1"
       exit 1
       ;;
   esac
-  shift
 done
+
+# --platform flag wins over inherited CONTAINER_PLATFORM.
+EFFECTIVE_PLATFORM="${DSPO_PLATFORM:-${CONTAINER_PLATFORM:-}}"
 
 IMAGE=""
 if [ "$USE_DOCKER" = true ]; then
-  IMAGE=$(h-podman-build-dev -d dspo) || handle_error "Failed to build Docker container image"
+  if [[ -n "$EFFECTIVE_PLATFORM" ]]; then
+    IMAGE=$(CONTAINER_PLATFORM="$EFFECTIVE_PLATFORM" h-podman-build-dev -d dspo) || handle_error "Failed to build Docker container image"
+  else
+    IMAGE=$(h-podman-build-dev -d dspo) || handle_error "Failed to build Docker container image"
+  fi
 else
-  IMAGE=$(h-podman-build-dev dspo) || handle_error "Failed to build Quay container image"
+  if [[ -n "$EFFECTIVE_PLATFORM" ]]; then
+    IMAGE=$(CONTAINER_PLATFORM="$EFFECTIVE_PLATFORM" h-podman-build-dev dspo) || handle_error "Failed to build Quay container image"
+  else
+    IMAGE=$(h-podman-build-dev dspo) || handle_error "Failed to build Quay container image"
+  fi
 fi
 
 # Push progress must not go to stdout — callers use $(h-dspo-image) and need only the image ref.

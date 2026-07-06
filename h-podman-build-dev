@@ -26,10 +26,23 @@ fi
 TIMESTAMP=$(date +%s)
 CURRENT_BRANCH=$(git branch --show-current)
 
+# Optional OCI platform (e.g. linux/amd64 for OpenShift). Unset = host default.
+TARGETARCH="${TARGETARCH:-amd64}"
+PLATFORM_FLAG=()
+if [[ -n "${CONTAINER_PLATFORM:-}" ]]; then
+  PLATFORM_FLAG=(--platform "${CONTAINER_PLATFORM}")
+fi
+
+BUILDER_ARCH_FLAG=()
+if [[ -n "${BUILDER_ARCH:-}" ]]; then
+  BUILDER_ARCH_FLAG=(--build-arg "BUILDER_ARCH=${BUILDER_ARCH}")
+fi
+
 if [ "$USE_DOCKER" = true ]; then
   FULL_IMAGE_NAME="docker.io/hbelmiro/${IMAGE_NAME}:dev-${CURRENT_BRANCH//\//_}-${TIMESTAMP}"
-  if podman build --build-arg TARGETOS=linux --build-arg TARGETARCH=amd64 \
-    --build-arg "FIPS_ENABLED=${FIPS_ENABLED:-0}" -t "${FULL_IMAGE_NAME}" . > /dev/null; then
+  if podman build "${PLATFORM_FLAG[@]}" \
+    --build-arg TARGETOS=linux --build-arg TARGETARCH="${TARGETARCH}" \
+    --build-arg "FIPS_ENABLED=${FIPS_ENABLED:-0}" "${BUILDER_ARCH_FLAG[@]}" -t "${FULL_IMAGE_NAME}" . > /dev/null; then
     echo "${FULL_IMAGE_NAME}"
   else
     echo "Docker build failed."
@@ -37,8 +50,9 @@ if [ "$USE_DOCKER" = true ]; then
   fi
 else
   FULL_IMAGE_NAME=quay.io/hbelmiro/"${IMAGE_NAME}":dev-"${CURRENT_BRANCH//\//_}"-"${TIMESTAMP}"
-  if podman build --build-arg TARGETOS=linux --build-arg TARGETARCH=amd64 \
-    --build-arg "FIPS_ENABLED=${FIPS_ENABLED:-0}" -t "${FULL_IMAGE_NAME}" . > /dev/null; then
+  if podman build "${PLATFORM_FLAG[@]}" \
+    --build-arg TARGETOS=linux --build-arg TARGETARCH="${TARGETARCH}" \
+    --build-arg "FIPS_ENABLED=${FIPS_ENABLED:-0}" "${BUILDER_ARCH_FLAG[@]}" -t "${FULL_IMAGE_NAME}" . > /dev/null; then
     echo "${FULL_IMAGE_NAME}"
   else
     echo "Quay container build failed."
